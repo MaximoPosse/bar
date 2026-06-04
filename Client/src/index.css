@@ -1,0 +1,20 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg-color: #000000;
+  --panel-bg: #1a1a1a;
+  --text-color: #ffffff;
+  --border-color: #ffffff;
+  --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+
+body {
+  background: var(--bg-color);
+  color: var(--text-color);
+  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  min-height: 100vh;
+}
