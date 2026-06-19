@@ -126,9 +126,9 @@ function BarPlayeroLayout() {
       <header className="encabezado">
         <img src={Logo} alt="Cáliz Logo" className="logo-image" />
         <nav className="menu">
-          <a href="#">Hidromiel</a>
+          <a href="#">Cocteles</a>
           <a href="#">Cervezas</a>
-          <a href="#">Espíritus</a>
+          <a href="#">Bebidas</a>
           <a href="#">Contacto</a>
           <button className="reserve-btn" onClick={handleReserveTable}>
             Reservar Mesa

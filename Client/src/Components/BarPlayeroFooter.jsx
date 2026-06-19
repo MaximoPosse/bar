@@ -4,7 +4,7 @@ function BarPlayeroFooter() {
   return (
     <footer>
       <p>
-        © 2024 El Cáliz - Taberna Medieval de Autor
+        © 2024 El Cáliz - Taberna Medieval | Todos los derechos reservados. Diseñado por El Cáliz Team.
       </p>
     </footer>
   )

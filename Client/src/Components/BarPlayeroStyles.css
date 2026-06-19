@@ -1,9 +1,3 @@
-/* =============================================
-   CÁLIZ - TABERNA MEDIEVAL
-   Tema medieval con paleta de colores:
-   #5E2129, #7FA099, #F2EBE1, Bronce
-   ============================================= */
-
 .layout {
   display: flex;
   flex-direction: column;
