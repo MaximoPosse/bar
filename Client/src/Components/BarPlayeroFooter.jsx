@@ -4,7 +4,7 @@ function BarPlayeroFooter() {
   return (
     <footer>
       <p>
-        © 2024 Urban Bar - Coctelería de autor en el corazón de la ciudad
+        © 2024 El Cáliz - Taberna Medieval de Autor
       </p>
     </footer>
   )

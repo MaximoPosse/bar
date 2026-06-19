@@ -124,11 +124,11 @@ function BarPlayeroLayout() {
       <Cart onShowLogin={() => setShowLogin(true)} />
 
       <header className="encabezado">
-        <img src={Logo} alt="Urban Bar Logo" className="logo-image" />
+        <img src={Logo} alt="Cáliz Logo" className="logo-image" />
         <nav className="menu">
-          <a href="#">Cocteles</a>
+          <a href="#">Hidromiel</a>
           <a href="#">Cervezas</a>
-          <a href="#">Bebidas</a>
+          <a href="#">Espíritus</a>
           <a href="#">Contacto</a>
           <button className="reserve-btn" onClick={handleReserveTable}>
             Reservar Mesa
@@ -154,11 +154,13 @@ function BarPlayeroLayout() {
 
       <section className="intermedio">
         <div className="hero-banner">
-          <h2>BIENVENIDOS A URBAN BAR</h2>
-          <p>Coctelería de autor y ambientes contemporáneos</p>
+          <div className="hero-sub">Taberna Medieval de Autor</div>
+          <h2>BIENVENIDOS AL <span>CÁLIZ</span></h2>
+          <div className="hero-divider"></div>
+          <p>Donde los antiguos sabores cobran vida entre muros de piedra y velas</p>
           <div className="hero-info">
-            <p>Un bar urbano y sofisticado en el corazón de la ciudad</p>
-            <p>Ofrecemos bebidas cuidadosamente elaboradas y servicio de primer nivel</p>
+            <p>Una taberna medieval en el corazón del reino, donde chaque brindis es una leyenda</p>
+            <p>Hidromiel, cervezas artesanales y espirituosos cuidadosamente seleccionados</p>
           </div>
           <div className="hero-buttons">
             <button 
@@ -244,23 +246,24 @@ function BarPlayeroLayout() {
       {/* Sección Sobre Nosotros */}
       <section className="about-section" id="about-section">
         <div className="about-container">
-          <h2 className="about-title">SOBRE NOSOTROS</h2>
+          <h2 className="about-title">SOBRE EL CÁLIZ</h2>
           <div className="about-content">
             <div className="about-card">
-                <h3>Nuestro Objetivo</h3>
+                <h3>Nuestro Propósito</h3>
                 <p>
-                  En Urban Bar, nuestro objetivo es ofrecer experiencias urbanas sofisticadas e inolvidables para nuestros clientes.
-                  Nos enfocamos en coctelería de autor, servicio profesional y un ambiente elegante que invita a disfrutar de la ciudad.
-                  Buscamos crear momentos memorables combinando técnica, calidad y hospitalidad de alto nivel.
+                  En El Cáliz, nuestro propósito es ofrecer experiencias medievales auténticas e inolvidables para nuestros comensales.
+                  Nos enfocamos en hidromiel artesanal, licores de autor y un ambiente de taberna que transporta a otra época.
+                  Buscamos crear momentos memorables combinando tradición, calidad y hospitalidad de antaño.
                 </p>
             </div>
             <div className="about-card">
-              <h3>Nuestra Historia</h3>
+              <h3>Nuestra Leyenda</h3>
               <p>
-                Urban Bar nació con la visión de crear un espacio urbano y profesional donde la coctelería de autor
-                sea el centro de la experiencia. Desde nuestros inicios hemos combinado la técnica, los mejores ingredientes
-                y un servicio impecable para ofrecer propuestas contemporáneas que sorprenden a cada cliente.
-                Nos esforzamos por superar expectativas y consolidar una experiencia distintiva en la ciudad.
+                El Cáliz nació con la visión de crear un espacio donde la tradición medieval y la coctelería de autor
+                sean el centro de la experiencia. Inspirados en las antiguas tabernas del viejo continente, combinamos
+                ingredientes ancestrales, recetas olvidadas y un servicio digno de reyes para ofrecer propuestas
+                que sorprenden a cada visitante. Nos esforzamos por superar expectativas y consolidar una experiencia
+                legendaria en el reino.
               </p>
             </div>
           </div>
@@ -270,12 +273,12 @@ function BarPlayeroLayout() {
       {/* Sección Ambiente Único */}
       <section className="info-section">
         <div className="info-container">
-          <h3>AMBIENTE ÚNICO</h3>
+          <h3>AMBIENTE MEDIEVAL</h3>
           <div className="ambience-gallery">
-            <img src="/bartender-preparing-cocktail-with-professional-tec.jpg" alt="Bartender preparando cóctel" className="ambience-image" />
-            <img src="/cozy-bar-lounge-seating-area-with-warm-lighting.jpg" alt="Área de descanso acogedora" className="ambience-image" />
-            <img src="/elegant-bar-counter-with-premium-bottles-backlit.jpg" alt="Barra elegante con botellas premium" className="ambience-image" />
-            <img src="/elegant-dark-bar-interior-with-bottles-and-mood-li.jpg" alt="Interior elegante del bar" className="ambience-image" />
+            <img src="/bartender-preparing-cocktail-with-professional-tec.jpg" alt="Tabernero preparando hidromiel" className="ambience-image" />
+            <img src="/cozy-bar-lounge-seating-area-with-warm-lighting.jpg" alt="Salón de la taberna con iluminación de velas" className="ambience-image" />
+            <img src="/elegant-bar-counter-with-premium-bottles-backlit.jpg" alt="Barra de roble con destilados" className="ambience-image" />
+            <img src="/elegant-dark-bar-interior-with-bottles-and-mood-li.jpg" alt="Interior de la taberna medieval" className="ambience-image" />
           </div>
         </div>
       </section>
@@ -287,7 +290,7 @@ function BarPlayeroLayout() {
           <form className="contact-form">
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="nombre">Nombre</label>
+                <label htmlFor="nombre">Nombre del Huésped</label>
                 <input type="text" id="nombre" name="nombre" required />
               </div>
               <div className="form-group">
@@ -296,14 +299,14 @@ function BarPlayeroLayout() {
               </div>
             </div>
             <div className="form-group">
-              <label htmlFor="asunto">Asunto</label>
+              <label htmlFor="asunto">Asunto del Mensaje</label>
               <input type="text" id="asunto" name="asunto" required />
             </div>
             <div className="form-group">
               <label htmlFor="mensaje">Mensaje</label>
               <textarea id="mensaje" name="mensaje" rows="5" required></textarea>
             </div>
-            <button type="submit" className="contact-submit">Enviar Mensaje</button>
+            <button type="submit" className="contact-submit">Enviar Mensaje por Cuervo</button>
           </form>
         </div>
       </section>
