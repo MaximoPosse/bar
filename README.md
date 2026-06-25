@@ -1,4 +1,4 @@
-# BarConnect 🍸
+# Bar🍸
 
 Sistema de gestión para bares y restaurantes. Permite administrar productos, carrito de compras, autenticación de usuarios (incluyendo reconocimiento facial), reservas y promociones.
 
