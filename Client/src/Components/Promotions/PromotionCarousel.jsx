@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import './PromotionCarousel.css'
 
-function PromotionCarousel({ promotions }) {
+function PromotionCarousel({ promotions, onAddPromo }) {
   const [currentIndex, setCurrentIndex] = useState(0)
 
   useEffect(() => {
@@ -57,6 +57,11 @@ function PromotionCarousel({ promotions }) {
                       <span className="promotion-new-price">{promo.newPrice}</span>
                     </div>
                     <span className="promotion-discount">{promo.discount}</span>
+                    {onAddPromo && (
+                      <button className="promo-add-btn" onClick={() => onAddPromo(promo)}>
+                        Agregar al Carrito
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

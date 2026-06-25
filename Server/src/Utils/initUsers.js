@@ -1,64 +1,53 @@
-const db = require('../DataBase/db');
+/**
+ * Inicialización de Usuarios por Defecto
+ * 
+ * Crea los usuarios predefinidos (superadmin, admin) al iniciar el sistema
+ * si es que aún no existen en la base de datos.
+ */
+
+const { dbGet, dbRun } = require('./Querys');
 const bcrypt = require('bcrypt');
 
-function dbGet(query, params) {
-    return new Promise((resolve, reject) => {
-        db.get(query, params || [], (err, row) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(row);
-            }
-        });
-    });
-}
+const SALT_ROUNDS = 10;
 
-function dbRun(query, params) {
-    return new Promise((resolve, reject) => {
-        db.run(query, params || [], (err) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve();
-            }
-        });
-    });
-}
-
+/**
+ * Crea los usuarios iniciales (superadmin y admin) si no existen.
+ * Se ejecuta automáticamente al iniciar el servidor.
+ * 
+ * Usuarios creados:
+ *   - superadmin / superadmin123 (acceso total al sistema)
+ *   - admin / admin123 (acceso administrativo estándar)
+ * 
+ * @returns {Promise<{success: boolean}>}
+ */
 async function crearUsuariosIniciales() {
-    const saltRounds = 10;
-    
     try {
-        // Verificar si superadmin existe
-        const superAdmin = await dbGet(`SELECT * FROM Empleado WHERE Nombre = ?`, ['superadmin']);
-        
+        const superAdmin = await dbGet('SELECT * FROM Empleado WHERE Nombre = ?', ['superadmin']);
+
         if (!superAdmin) {
-            // Crear SUPERADMIN
-            const superAdminPassword = await bcrypt.hash('superadmin123', saltRounds);
-            await dbRun(`
-                INSERT INTO Empleado (Nombre, Correo, Contraseña, Rol)
-                VALUES (?, ?, ?, ?)
-            `, ['superadmin', 'superadmin@barplayero.com', superAdminPassword, 'SUPERADMIN']);
-            console.log('✅ Usuario SUPERADMIN creado (usuario: superadmin, contraseña: superadmin123)');
+            const hash = await bcrypt.hash('superadmin123', SALT_ROUNDS);
+            await dbRun(
+                'INSERT INTO Empleado (Nombre, Correo, Contraseña, Rol) VALUES (?, ?, ?, ?)',
+                ['superadmin', 'superadmin@barplayero.com', hash, 'SUPERADMIN']
+            );
+            console.log('Usuario SUPERADMIN creado (usuario: superadmin, contraseña: superadmin123)');
         } else {
-            console.log('ℹ️  Usuario superadmin ya existe');
+            console.log('Usuario superadmin ya existe');
         }
-        
-        // Verificar si admin existe
-        const admin = await dbGet(`SELECT * FROM Empleado WHERE Nombre = ?`, ['admin']);
-        
+
+        const admin = await dbGet('SELECT * FROM Empleado WHERE Nombre = ?', ['admin']);
+
         if (!admin) {
-            // Crear Admin
-            const adminPassword = await bcrypt.hash('admin123', saltRounds);
-            await dbRun(`
-                INSERT INTO Empleado (Nombre, Correo, Contraseña, Rol)
-                VALUES (?, ?, ?, ?)
-            `, ['admin', 'admin@barplayero.com', adminPassword, 'Admin']);
-            console.log('✅ Usuario Admin creado (usuario: admin, contraseña: admin123)');
+            const hash = await bcrypt.hash('admin123', SALT_ROUNDS);
+            await dbRun(
+                'INSERT INTO Empleado (Nombre, Correo, Contraseña, Rol) VALUES (?, ?, ?, ?)',
+                ['admin', 'admin@barplayero.com', hash, 'Admin']
+            );
+            console.log('Usuario Admin creado (usuario: admin, contraseña: admin123)');
         } else {
-            console.log('ℹ️  Usuario admin ya existe');
+            console.log('Usuario admin ya existe');
         }
-        
+
         return { success: true };
     } catch (error) {
         console.error('Error al crear usuarios iniciales:', error);

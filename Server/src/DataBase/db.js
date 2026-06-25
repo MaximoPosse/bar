@@ -1,106 +1,118 @@
+/**
+ * Configuración de la Base de Datos SQLite
+ * 
+ * Crea la conexión con la base de datos y define todas las tablas
+ * del sistema (Clientes, Empleados, Productos, Promos, Carrito, Compras).
+ */
 
-// ---> Utilizamos la Dependencia sqlite3
 const SQLite = require('sqlite3')
+const path = require('path')
 
-// ---> Utilizamos "PATH" para indicar ubicacion
-const path= require('path')
+const dbUbicacion = path.resolve(__dirname, './Sistema.db')
 
-// ---> Ubicación de la Base de Datos
-const dbUbicacion = path.resolve(__dirname,'./Sistema.db')
-
-function CrearTablas(db)
-{
-    // Verifica si hubo un error y si lo hay, lanza un error con el mensaje
-    function CheckError(Error, Message)
-    {
-        if(Error)
-            console.error(`❗ Error: ${Message}\n`, Error)
+/**
+ * Crea todas las tablas si no existen.
+ * También intenta agregar columnas nuevas para compatibilidad con versiones anteriores.
+ */
+function CrearTablas(db) {
+    function CheckError(Error, Message) {
+        if (Error)
+            console.error('Error: ' + Message + '\n', Error)
     }
-    // Tabla Cliente
+
+    // Tabla: Clientes del sistema (usuarios finales)
     db.run(`
         CREATE TABLE IF NOT EXISTS "Cliente" (
-	        "Id"	INTEGER,
-	        "Nombre"	TEXT UNIQUE,
-	        "Correo"	TEXT,
-	        "Contraseña"	TEXT,
-	        PRIMARY KEY("Id" AUTOINCREMENT)
+            "Id"            INTEGER,
+            "Nombre"        TEXT UNIQUE,
+            "Correo"        TEXT,
+            "Contraseña"    TEXT,
+            "Rostro"        TEXT,
+            PRIMARY KEY("Id" AUTOINCREMENT)
         );
     `, (Error) => CheckError(Error, "Tabla Clientes no creada"));
-    // Tabla Empleado
+
+    // Tabla: Empleados/Administradores del sistema
     db.run(`
         CREATE TABLE IF NOT EXISTS "Empleado" (
-	        "ID"	INTEGER,
-	        "Nombre"	TEXT,
-	        "Correo"	TEXT,
-	        "Contraseña"	TEXT,
-	        "Rol"	TEXT DEFAULT 'Admin',
-	        PRIMARY KEY("ID" AUTOINCREMENT)
+            "ID"            INTEGER,
+            "Nombre"        TEXT,
+            "Correo"        TEXT,
+            "Contraseña"    TEXT,
+            "Rol"           TEXT DEFAULT 'Admin',
+            PRIMARY KEY("ID" AUTOINCREMENT)
         );
     `, (Error) => CheckError(Error, "Tabla Empleados no creada"));
-    // Agregar columna Rol si no existe (para bases de datos existentes)
-    db.run(`
-        ALTER TABLE Empleado ADD COLUMN Rol TEXT DEFAULT 'Admin'
-    `, (Error) => {
-        // Ignorar error si la columna ya existe
-    });
-    // Tabla Promos
+
+    // Compatibilidad: agrega columna Rol si no existe
+    db.run(`ALTER TABLE Empleado ADD COLUMN Rol TEXT DEFAULT 'Admin'`, (Error) => {});
+
+    // Tabla: Promociones
     db.run(`
         CREATE TABLE IF NOT EXISTS "Promos" (
-	        "ID"	INTEGER,
-	        "Nombre"	TEXT,
-            "Precio"	REAL,
-            "Imagen"    BLOB,
-            "Descripcion" TEXT,
-	        PRIMARY KEY("ID" AUTOINCREMENT)
+            "ID"            INTEGER,
+            "Nombre"        TEXT,
+            "Precio"        REAL,
+            "Imagen"        BLOB,
+            "Descripcion"   TEXT,
+            PRIMARY KEY("ID" AUTOINCREMENT)
         );
     `, (Error) => CheckError(Error, "Tabla Promos no creada"));
-    // Tabla Productos
+
+    // Tabla: Productos (cada uno puede pertenecer a una promo)
     db.run(`
         CREATE TABLE IF NOT EXISTS "Productos" (
-	        "ID"	INTEGER,
-	        "Nombre"	TEXT,
-	        "Precio"	REAL,
-            "Imagen"    BLOB,
-	        "Stock"	INTEGER,
-	        "Descripcion"	TEXT,
-	        "ID_Promo"	INTEGER,
-	        PRIMARY KEY("ID"),
-	        FOREIGN KEY("ID_Promo") REFERENCES "Promos"("ID")
+            "ID"            INTEGER,
+            "Nombre"        TEXT,
+            "Precio"        REAL,
+            "Imagen"        BLOB,
+            "Stock"         INTEGER,
+            "Descripcion"   TEXT,
+            "ID_Promo"      INTEGER,
+            "Categoria"     TEXT DEFAULT 'Bebidas',
+            PRIMARY KEY("ID"),
+            FOREIGN KEY("ID_Promo") REFERENCES "Promos"("ID")
         );
     `, (Error) => CheckError(Error, "Tabla Productos no creada"));
-    // Tabla Carrito
+
+    // Compatibilidad: agrega columna Categoria si no existe
+    db.run(`ALTER TABLE Productos ADD COLUMN Categoria TEXT DEFAULT 'Bebidas'`, (Error) => {});
+
+    // Tabla: Carrito de compras (relaciona clientes con productos/promos)
     db.run(`
         CREATE TABLE IF NOT EXISTS "Carrito" (
-	        "ID"	INTEGER,
-	        "ID_Producto"	INTEGER,
-	        "ID_Promo"	INTEGER,
-	        "ID_Cliente"	INTEGER,
-            "Cantidad" INTEGER,
-	        PRIMARY KEY("ID" AUTOINCREMENT),
-	        FOREIGN KEY("ID_Cliente") REFERENCES "Cliente"("ID"),
-	        FOREIGN KEY("ID_Producto") REFERENCES "Productos"("ID"),
-	        FOREIGN KEY("ID_Promo") REFERENCES "Promos"("ID")
+            "ID"            INTEGER,
+            "ID_Producto"   INTEGER,
+            "ID_Promo"      INTEGER,
+            "ID_Cliente"    INTEGER,
+            "Cantidad"      INTEGER,
+            PRIMARY KEY("ID" AUTOINCREMENT),
+            FOREIGN KEY("ID_Cliente")  REFERENCES "Cliente"("ID"),
+            FOREIGN KEY("ID_Producto") REFERENCES "Productos"("ID"),
+            FOREIGN KEY("ID_Promo")    REFERENCES "Promos"("ID")
         );
     `, (Error) => CheckError(Error, "Tabla Carrito no creada"));
-    // Tabla Compra
+
+    // Tabla: Historial de compras
     db.run(`
         CREATE TABLE IF NOT EXISTS "Compra" (
-	        "ID"	INTEGER,
-	        "Fecha"	TEXT,
-	        "Hora"	TEXT,
-	        "Monto_Total"	INTEGER,
-	        "ID_Carrito"	INTEGER,
-	        PRIMARY KEY("ID" AUTOINCREMENT),
-	        FOREIGN KEY("ID_Carrito") REFERENCES "Carrito"("ID")
+            "ID"            INTEGER,
+            "Fecha"         TEXT,
+            "Hora"          TEXT,
+            "Monto_Total"   INTEGER,
+            "ID_Carrito"    INTEGER,
+            PRIMARY KEY("ID" AUTOINCREMENT),
+            FOREIGN KEY("ID_Carrito") REFERENCES "Carrito"("ID")
         );
     `, (Error) => CheckError(Error, "Tabla Compra no creada"));
 }
 
-// Función para inicializar usuarios por defecto
-function InicializarUsuarios(db) {
+/**
+ * Crea los usuarios por defecto (superadmin, admin) si no existen.
+ * Se ejecuta con un retraso para asegurar que las tablas ya estén creadas.
+ */
+function InicializarUsuarios() {
     const { crearUsuariosIniciales } = require('../Utils/initUsers');
-    
-    // Esperar un poco más para asegurar que las tablas estén creadas
     setTimeout(() => {
         crearUsuariosIniciales().catch(err => {
             console.error('Error al inicializar usuarios:', err);
@@ -108,18 +120,17 @@ function InicializarUsuarios(db) {
     }, 1000);
 }
 
-const db = new SQLite.Database(dbUbicacion, (Error)=>{
-    if(Error)
-        console.error('No se Pudo Crear la Base de Datos ⛔')
-    else
-    {
-        console.log('✅ Base de Datos Creada')
+// Inicializar conexión a la base de datos
+const db = new SQLite.Database(dbUbicacion, (Error) => {
+    if (Error)
+        console.error('No se pudo crear la base de datos')
+    else {
+        console.log('Base de datos creada/conectada')
         CrearTablas(db);
-        // Inicializar usuarios después de crear las tablas
         setTimeout(() => {
-            InicializarUsuarios(db);
+            InicializarUsuarios();
         }, 500);
     }
 })
 
-module.exports=db;
+module.exports = db;

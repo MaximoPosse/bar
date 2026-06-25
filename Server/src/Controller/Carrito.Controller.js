@@ -1,262 +1,222 @@
-const {dbGet, dbAll, dbRun} = require("../Utils/Querys")
+/**
+ * Controlador del Carrito de Compras
+ * 
+ * Maneja las operaciones del carrito: agregar/eliminar productos y
+ * promociones, modificar cantidades y vaciar el carrito completo.
+ */
 
-async function ClienteExiste(ID)
-{
-    const query = "SELECT * FROM Cliente WHERE ID = ?";
-    const Cliente = await dbGet(query, [ID]);
-    return Cliente != false;
+const { dbGet, dbAll, dbRun } = require("../Utils/Querys")
+
+// ──────────────────────────────────────────────
+//  FUNCIONES AUXILIARES
+// ──────────────────────────────────────────────
+
+async function clienteExiste(id) {
+    let cliente = await dbGet("SELECT * FROM Cliente WHERE Id = ?", [id]);
+    if (cliente) return true;
+    cliente = await dbGet("SELECT * FROM Empleado WHERE ID = ?", [id]);
+    return cliente != false;
 }
 
-async function ProductoExiste(ID)
-{
-    const query = "SELECT * FROM Productos WHERE ID = ?";
-    const Producto = await dbGet(query, [ID]);
-    return Producto != false;
+async function productoExiste(id) {
+    const producto = await dbGet("SELECT * FROM Productos WHERE ID = ?", [id]);
+    return producto != false;
 }
 
-async function PromoExiste(ID)
-{
-    const query = "SELECT * FROM Promos WHERE ID = ?";
-    const Promo = await dbGet(query, [ID]);
-    return Promo != false;
+async function promoExiste(id) {
+    const promo = await dbGet("SELECT * FROM Promos WHERE ID = ?", [id]);
+    return promo != false;
 }
 
-// Obtiene el Carrito de un cliente :D
-/*
-    Devuelve los datos en un array asi:
-    [
-        {
-            "ID_Carrito": 1,
-            "ID_Producto": 5,
-            "ProductoNombre": "Whisky",
-            "ProductoPrecio": 1200,
-            "ProductoDescripcion": "Un buen whisky",
-            "ProductoImagen": AlgunaImagen.png
-            "Cantidad": 2,
-            "ID_Promo": -1,
-            "PromoNombre": null,
-            "PromoPrecio": null
-        },
-        {
-            "ID_Carrito": 2,
-            "ID_Producto": -1,
-            "ProductoNombre": null,
-            "ProductoPrecio": null,
-            "ProductoDescripcion": null,
-            "Cantidad": 1,
-            "ID_Promo": 3,
-            "PromoNombre": "Combo Alcohilo XD",
-            "PromoPrecio": 9999
-        }
-    ]
-    Si queres saber si un elemento es producto o promo, solo compara si ID_Promo == -1.
-    por ejemplo:
-    const Carrito = await axios.post("http://localhost:3000/api/ObtenerCarrito", {ClienteID});
-    Carrito.data.forEach((Item) => {
-        if(Item.ID_Promo == -1)
-            console.log("Es un producto:", Item.ProductoNombre);
-        else
-            console.log("Es una promo:", Item.PromoNombre);
-    });
-}
-*/
+// ──────────────────────────────────────────────
+//  OBTENER CARRITO
+// ──────────────────────────────────────────────
+
+/**
+ * POST /api/obtenercarrito
+ * Obtiene el contenido del carrito de un cliente :D
+ *
+ * Body: { ID_Cliente }
+ * 
+ * Devuelve un array donde cada item puede ser un producto (ID_Promo == -1)
+ * o una promoción (ID_Promo != -1):
+ * [
+ *   { ID_Carrito, ID_Producto, ProductoNombre, ProductoPrecio, Cantidad, ID_Promo, ... },
+ *   { ID_Carrito, ID_Producto: -1, ProductoNombre: null, Cantidad, ID_Promo, PromoNombre, ... }
+ * ]
+ */
 async function ObtenerCarrito(req, res)
 {
-    const {ID_Cliente} = req.body;
-    if(!ID_Cliente)
-        return res.status(400).json({Error: "Falta ID del cliente"});
-    const query = `
+    const { ID_Cliente } = req.body;
+    if (!ID_Cliente)
+        return res.status(400).json({ Error: "Falta ID del cliente" });
+
+    const carrito = await dbAll(`
         SELECT
-            Carrito.ID AS ID_Carrito,
+            Carrito.ID          AS ID_Carrito,
             Carrito.ID_Producto,
-            Productos.Nombre AS ProductoNombre,
-            Productos.Precio AS ProductoPrecio,
-            Productos.Imagen AS ProductoImagen,
+            Productos.Nombre    AS ProductoNombre,
+            Productos.Precio    AS ProductoPrecio,
+            Productos.Imagen    AS ProductoImagen,
             Productos.Descripcion AS ProductoDescripcion,
             Carrito.Cantidad,
             Carrito.ID_Promo,
-            Promos.Nombre AS PromoNombre,
-            Promos.Precio AS PromoPrecio
+            Promos.Nombre       AS PromoNombre,
+            Promos.Precio       AS PromoPrecio,
+            Promos.Imagen       AS PromoImagen,
+            Promos.Descripcion  AS PromoDescripcion
         FROM Carrito
         LEFT JOIN Productos ON Carrito.ID_Producto = Productos.ID
         LEFT JOIN Promos ON Carrito.ID_Promo = Promos.ID
         WHERE Carrito.ID_Cliente = ?
-    `;
-    const Carrito = await dbAll(query, [ID_Cliente]);
-    Carrito.map((Item) => {
-        Item.ProductoImagen = Item.ProductoImagen.toString("base64");
-    })
-    return res.status(200).json(Carrito);
+    `, [ID_Cliente]);
+
+    carrito.forEach(item => {
+        if (item.ProductoImagen) item.ProductoImagen = item.ProductoImagen.toString("base64");
+        if (item.PromoImagen) item.PromoImagen = item.PromoImagen.toString("base64");
+    });
+
+    return res.status(200).json(carrito);
 }
 
-// Añade un producto al carrito del cliente
+// ──────────────────────────────────────────────
+//  PRODUCTOS EN CARRITO
+// ──────────────────────────────────────────────
+
+/**
+ * POST /api/anadirprodcarrito
+ * Agrega un producto al carrito. Si ya existe, incrementa la cantidad.
+ * Body: { ID_Cliente, ID_Producto }
+ */
 async function AñadirProdCarrito(req, res)
 {
-    const {ID_Cliente, ID_Producto} = req.body;
-    if(!ID_Cliente || !ID_Producto)
-        return res.status(400).json({Error: "Faltan ID_Cliente o ID_Producto"});
-    // Verificamos si Cliente y Producto existen
-    if(!await ClienteExiste(ID_Cliente))
-        return res.status(404).json({Error: "Cliente inexistente", ID_Cliente});
-    if(!await ProductoExiste(ID_Producto))
-        return res.status(404).json({Error: "Producto inexistente", ID_Producto});
-    // Verificamos si el producto ya esta en el carrito
-    query = `
-        SELECT * FROM Carrito 
-        WHERE ID_Producto = ? AND ID_Cliente = ?
-    `;
-    const Item = await dbGet(query, [ID_Producto, ID_Cliente]);
-    if(Item)
-    {
-        // Si ya existe, solo aumentamos la cantidad
-        const nuevaCantidad = Item.Cantidad + 1;
-        query = `
-            UPDATE Carrito SET Cantidad = ?
-            WHERE ID = ?
-        `;
-        await dbRun(query, [nuevaCantidad, Item.ID]);
+    const { ID_Cliente, ID_Producto } = req.body;
+    if (!ID_Cliente || !ID_Producto)
+        return res.status(400).json({ Error: "Faltan ID_Cliente o ID_Producto" });
+    if (!await clienteExiste(ID_Cliente))
+        return res.status(404).json({ Error: "Cliente inexistente", ID_Cliente });
+    if (!await productoExiste(ID_Producto))
+        return res.status(404).json({ Error: "Producto inexistente", ID_Producto });
+
+    const item = await dbGet(`SELECT * FROM Carrito WHERE ID_Producto = ? AND ID_Cliente = ?`, [ID_Producto, ID_Cliente]);
+
+    if (item) {
+        await dbRun(`UPDATE Carrito SET Cantidad = ? WHERE ID = ?`, [item.Cantidad + 1, item.ID]);
+    } else {
+        await dbRun(`INSERT INTO Carrito(ID_Producto, ID_Promo, ID_Cliente, Cantidad) VALUES (?, -1, ?, 1)`, [ID_Producto, ID_Cliente]);
     }
-    else
-    {
-        // Si no existe, lo insertamos con cantidad 1
-        query = `
-            INSERT INTO Carrito(ID_Producto, ID_Promo, ID_Cliente, Cantidad) 
-            VALUES (?, -1, ?, 1)
-        `;
-        await dbRun(query, [ID_Producto, ID_Cliente]);
-    }
-    return res.status(201).json({Mensaje: "Producto añadido al carrito"});
+
+    return res.status(201).json({ Mensaje: "Producto añadido al carrito" });
 }
 
-// Elimina un producto del carrito del cliente
-// Si el producto tiene cantidad > 1, solo disminuye la cantidad
-// Si la cantidad es 1, elimina el producto del carrito
-// Si vos envias Eliminar=true en el body, elimina el producto sin importar la cantidad
+/**
+ * POST /api/eliminarprodcarrito
+ * Disminuye la cantidad de un producto o lo elimina del carrito.
+ * Si cantidad > 1, solo decrementa. Si cantidad == 1 o Eliminar=true, lo elimina.
+ * Body: { ID_Cliente, ID_Producto, Eliminar? }
+ */
 async function EliminarProdCarrito(req, res)
 {
-    const {ID_Cliente, ID_Producto, Eliminar} = req.body;
-    if(!ID_Cliente || !ID_Producto)
-        return res.status(400).json({Error: "Faltan ID_Cliente o ID_Producto"});
-    if(!await ClienteExiste(ID_Cliente))
-        return res.status(404).json({Error: "Cliente inexistente"});
-    if(!await ProductoExiste(ID_Producto))
-        return res.status(404).json({Error: "Producto inexistente"});
-    let query = `
-        SELECT * FROM Carrito 
-        WHERE ID_Producto = ? AND ID_Cliente = ?
-    `;
-    const Item = await dbGet(query, [ID_Producto, ID_Cliente]);
-    if(!Item)
-        return res.status(404).json({Error: "El cliente no tiene ese producto en el carrito"});
-    if(Item.Cantidad > 1 && !Eliminar)
-    {
-        // Si la cantidad es mayor a 1, solo disminuimos la cantidad
-        const nuevaCantidad = Item.Cantidad - 1;
-        query = `
-            UPDATE Carrito SET Cantidad = ?
-            WHERE ID = ?
-        `;
-        await dbRun(query, [nuevaCantidad, Item.ID]);
-        return res.status(200).json({Mensaje: "Cantidad de producto disminuida"});
-    }
-    else
-    {
-        // Si la cantidad es 1 o 'Eliminar' es verdadero, eliminamos el item del carrito
-        query = "DELETE FROM Carrito WHERE ID = ?";
-        await dbRun(query, [Item.ID]);
-        return res.status(200).json({Mensaje: "Producto eliminado del carrito"});
+    const { ID_Cliente, ID_Producto, Eliminar } = req.body;
+    if (!ID_Cliente || !ID_Producto)
+        return res.status(400).json({ Error: "Faltan ID_Cliente o ID_Producto" });
+    if (!await clienteExiste(ID_Cliente))
+        return res.status(404).json({ Error: "Cliente inexistente" });
+    if (!await productoExiste(ID_Producto))
+        return res.status(404).json({ Error: "Producto inexistente" });
+
+    const item = await dbGet(`SELECT * FROM Carrito WHERE ID_Producto = ? AND ID_Cliente = ?`, [ID_Producto, ID_Cliente]);
+    if (!item)
+        return res.status(404).json({ Error: "El cliente no tiene ese producto en el carrito" });
+
+    if (item.Cantidad > 1 && !Eliminar) {
+        await dbRun(`UPDATE Carrito SET Cantidad = ? WHERE ID = ?`, [item.Cantidad - 1, item.ID]);
+        return res.status(200).json({ Mensaje: "Cantidad de producto disminuida" });
+    } else {
+        await dbRun(`DELETE FROM Carrito WHERE ID = ?`, [item.ID]);
+        return res.status(200).json({ Mensaje: "Producto eliminado del carrito" });
     }
 }
 
-async function VaciarCarrito(req, res)
-{
-    const {ID_Cliente} = req.body;
-    if(!ID_Cliente)
-        return res.status(400).json({Error: "Faltan ID_Cliente o ID_Producto"});
-    if(!await ClienteExiste(ID_Cliente))
-        return res.status(404).json({Error: "Cliente inexistente"});
-    let query = "DELETE FROM Carrito WHERE ID_Cliente = ?";
-    let Error = await dbRun(query, [ID_Cliente]);
-    if(Error)
-        return res.status(404).json({Error: "Error en Servidor"});
-    return res.status(200).json({
-        Mensaje: "Vacio de Carrito exitoso"
-    });
-}
+// ──────────────────────────────────────────────
+//  PROMOCIONES EN CARRITO
+// ──────────────────────────────────────────────
 
-// Añade una promo al carrito del cliente
+/**
+ * POST /api/anadirpromcarrito
+ * Agrega una promo al carrito. Si ya existe, incrementa la cantidad.
+ * Body: { ID_Cliente, ID_Promo }
+ */
 async function AñadirPromCarrito(req, res)
 {
-    const {ID_Cliente, ID_Promo} = req.body;
-    if(!ID_Cliente || !ID_Promo)
-        return res.status(400).json({Error: "Faltan ID_Cliente o ID_Promo"});
-    if(!await ClienteExiste(ID_Cliente))
-        return res.status(404).json({Error: "Cliente inexistente", ID_Cliente});
-    if(!await PromoExiste(ID_Promo))
-        return res.status(404).json({Error: "Promo inexistente", ID_Promo});
-    // Verificar si ya esta en carrito
-    let query = `
-        SELECT * FROM Carrito
-        WHERE ID_Promo = ? AND ID_Cliente = ?
-    `;
-    const Item = await dbGet(query, [ID_Promo, ID_Cliente]);
-    if(Item)
-    {
-        const nuevaCantidad = Item.Cantidad + 1;
-        query = `
-            UPDATE Carrito SET Cantidad = ?
-            WHERE ID = ?
-        `;
-        await dbRun(query, [nuevaCantidad, Item.ID]);
+    const { ID_Cliente, ID_Promo } = req.body;
+    if (!ID_Cliente || !ID_Promo)
+        return res.status(400).json({ Error: "Faltan ID_Cliente o ID_Promo" });
+    if (!await clienteExiste(ID_Cliente))
+        return res.status(404).json({ Error: "Cliente inexistente", ID_Cliente });
+    if (!await promoExiste(ID_Promo))
+        return res.status(404).json({ Error: "Promo inexistente", ID_Promo });
+
+    const item = await dbGet(`SELECT * FROM Carrito WHERE ID_Promo = ? AND ID_Cliente = ?`, [ID_Promo, ID_Cliente]);
+
+    if (item) {
+        await dbRun(`UPDATE Carrito SET Cantidad = ? WHERE ID = ?`, [item.Cantidad + 1, item.ID]);
+    } else {
+        await dbRun(`INSERT INTO Carrito(ID_Producto, ID_Promo, ID_Cliente, Cantidad) VALUES (-1, ?, ?, 1)`, [ID_Promo, ID_Cliente]);
     }
-    else
-    {
-        query = `
-            INSERT INTO Carrito(ID_Producto, ID_Promo, ID_Cliente, Cantidad) 
-            VALUES (-1, ?, ?, 1)
-        `;
-        await dbRun(query, [ID_Promo, ID_Cliente]);
-    }
-    return res.status(201).json({Mensaje: "Promo añadido al carrito"});
+
+    return res.status(201).json({ Mensaje: "Promo añadida al carrito" });
 }
 
-// Elimina una promo del carrito del cliente
-// Si la promo tiene cantidad > 1, solo disminuye la cantidad
-// Si la cantidad es 1, elimina la promo del carrito
-// Si vos envias Eliminar=true en el body, elimina la promo sin importar la cantidad
+/**
+ * POST /api/eliminarpromcarrito
+ * Disminuye la cantidad de una promo o la elimina del carrito.
+ * Si cantidad > 1, solo decrementa. Si cantidad == 1 o Eliminar=true, la elimina.
+ * Body: { ID_Cliente, ID_Promo, Eliminar? }
+ */
 // No se para que repito pero ante la duda lo dejo :D
 async function EliminarPromCarrito(req, res)
 {
-    const {ID_Cliente, ID_Promo, Eliminar} = req.body;
-    if(!ID_Carrito || !ID_Cliente)
-        return res.status(400).json({Error: "Faltan ID_Carrito o ID_Cliente"});
-    if(!await ClienteExiste(ID_Cliente))
-        return res.status(404).json({Error: "Cliente inexistente"});
-    if(!await PromoExiste(ID_Producto))
-        return res.status(404).json({Error: "Promo inexistente"});
-    let query = `
-        SELECT * FROM Carrito 
-        WHERE ID_Promo = ? AND ID_Cliente = ?
-    `;
-    const Item = await dbGet(query, [ID_Promo, ID_Cliente]);
-    if(!Item)
-        return res.status(404).json({Error: "El cliente no tiene esa promo en el carrito"});
-    if(Item.Cantidad > 1 && !Eliminar)
-    {
-        const nuevaCantidad = Item.Cantidad - 1;
-        query = `
-            UPDATE Carrito SET Cantidad = ?
-            WHERE ID = ?
-        `;
-        await dbRun(query, [nuevaCantidad, Item.ID]);
-        return res.status(200).json({Mensaje: "Cantidad de promo disminuida"});
+    const { ID_Cliente, ID_Promo, Eliminar } = req.body;
+    if (!ID_Promo || !ID_Cliente)
+        return res.status(400).json({ Error: "Faltan ID_Promo o ID_Cliente" });
+    if (!await clienteExiste(ID_Cliente))
+        return res.status(404).json({ Error: "Cliente inexistente" });
+    if (!await promoExiste(ID_Promo))
+        return res.status(404).json({ Error: "Promo inexistente" });
+
+    const item = await dbGet(`SELECT * FROM Carrito WHERE ID_Promo = ? AND ID_Cliente = ?`, [ID_Promo, ID_Cliente]);
+    if (!item)
+        return res.status(404).json({ Error: "El cliente no tiene esa promo en el carrito" });
+
+    if (item.Cantidad > 1 && !Eliminar) {
+        await dbRun(`UPDATE Carrito SET Cantidad = ? WHERE ID = ?`, [item.Cantidad - 1, item.ID]);
+        return res.status(200).json({ Mensaje: "Cantidad de promo disminuida" });
+    } else {
+        await dbRun(`DELETE FROM Carrito WHERE ID = ?`, [item.ID]);
+        return res.status(200).json({ Mensaje: "Promo eliminada del carrito" });
     }
-    else
-    {
-        query = "DELETE FROM Carrito WHERE ID = ?";
-        await dbRun(query, [Item.ID]);
-        return res.status(200).json({Mensaje: "Promoeliminado del carrito"});
-    }
+}
+
+// ──────────────────────────────────────────────
+//  VACIAR CARRITO
+// ──────────────────────────────────────────────
+
+/**
+ * POST /api/vaciarcarrito
+ * Elimina todos los items del carrito de un cliente.
+ * Body: { ID_Cliente }
+ */
+async function VaciarCarrito(req, res)
+{
+    const { ID_Cliente } = req.body;
+    if (!ID_Cliente)
+        return res.status(400).json({ Error: "Falta ID_Cliente" });
+    if (!await clienteExiste(ID_Cliente))
+        return res.status(404).json({ Error: "Cliente inexistente" });
+
+    await dbRun(`DELETE FROM Carrito WHERE ID_Cliente = ?`, [ID_Cliente]);
+    return res.status(200).json({ Mensaje: "Carrito vaciado exitosamente" });
 }
 
 module.exports = {

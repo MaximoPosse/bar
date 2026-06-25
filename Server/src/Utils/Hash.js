@@ -1,19 +1,33 @@
-// Invocar a la dependencias de encriptamiento
-const Encriptar = require("bcrypt")
-// --> Metodo de Seguridad
-const Salto = 10;
+/**
+ * Utilidades de Encriptación
+ * 
+ * Wrapper para bcrypt con funciones de hash y comparación de contraseñas.
+ */
 
-// ---> Metodo para Registrar Contraseña Encriptada
-async function EncriptarPassword(Password)
+const bcrypt = require("bcrypt")
+
+const SALT_ROUNDS = 10;
+
+/**
+ * Encripta una contraseña con bcrypt.
+ * @param {string} password - Contraseña en texto plano
+ * @returns {Promise<string>} Contraseña hasheada
+ */
+async function EncriptarPassword(password)
 {
-    const Seguridad = await Encriptar.genSalt(Salto);
-    return await Encriptar.hash(Password, Seguridad);
+    const salt = await bcrypt.genSalt(SALT_ROUNDS);
+    return await bcrypt.hash(password, salt);
 }
 
-// ---> Metodo para Desencriptar
-async function CompararPassword(Password, Parametro)
+/**
+ * Compara una contraseña en texto plano con su hash.
+ * @param {string} password - Contraseña en texto plano
+ * @param {string} hash - Hash almacenado en la base de datos
+ * @returns {Promise<boolean>} true si coinciden
+ */
+async function CompararPassword(password, hash)
 {
-    return await Encriptar.compare(Password, Parametro);
+    return await bcrypt.compare(password, hash);
 }
 
 module.exports = {CompararPassword, EncriptarPassword}

@@ -1,19 +1,31 @@
+/**
+ * Utilidades de Correo Electrónico
+ * 
+ * Envía correos mediante Nodemailer usando Gmail como servicio SMTP.
+ * Las credenciales se configuran en el archivo .env
+ */
+
 const nodemailer = require('nodemailer');
 
+/**
+ * Envía un correo electrónico al destinatario especificado.
+ * @param {string} destinatario - Correo electrónico del destinatario
+ * @param {string} asunto - Asunto del mensaje
+ * @param {string} cuerpo - Contenido del mensaje en texto plano
+ * @returns {Promise<{success: boolean, messageId?: string, error?: string}>}
+ */
 async function enviarCorreo(destinatario, asunto, cuerpo) {
   try {
-    // --- Configuración del transporter ---
     const transporter = nodemailer.createTransport({
-      service: 'gmail', // o el servicio que uses (Outlook, SMTP personalizado, etc.)
+      service: 'gmail',
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
     });
 
-    // --- Configuración del correo ---
     const mailOptions = {
-      from: `"Empresa BarConnect 🍻" <${process.env.EMAIL_USER}>`,
+      from: `"BarConnect" <${process.env.EMAIL_USER}>`,
       to: destinatario,
       subject: asunto,
       text: cuerpo,
@@ -21,21 +33,18 @@ async function enviarCorreo(destinatario, asunto, cuerpo) {
         <div style="font-family: Arial, sans-serif; color: #333;">
           <h2 style="color: #007BFF;">${asunto}</h2>
           <p>${cuerpo}</p>
-          <hr/>
-
         </div>
       `,
     };
 
-    // --- Envío del correo ---
     const info = await transporter.sendMail(mailOptions);
-    console.log(`✅ Correo enviado correctamente a ${destinatario} (ID: ${info.messageId})`);
+    console.log(`Correo enviado a ${destinatario} (ID: ${info.messageId})`);
 
     return { success: true, messageId: info.messageId };
   } catch (error) {
-    console.error('❌ Error al enviar el correo:', error.message);
+    console.error('Error al enviar el correo:', error.message);
     return { success: false, error: error.message };
   }
 }
 
-module.exports = {enviarCorreo};
+module.exports = { enviarCorreo };

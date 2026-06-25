@@ -17,19 +17,19 @@ function BarPlayeroLayout() {
   const { user, isAdmin, logout } = useAuth()
   const [showLogin, setShowLogin] = useState(false)
   const [showReservation, setShowReservation] = useState(false)
-  // Datos de productos con stock
-  const [products, setProducts] = useState([]);
-  const [promotions, setPromotions] = useState([]);
+  const [products, setProducts] = useState([])
+  const [promotions, setPromotions] = useState([])
   const [cartMsg, setCartMsg] = useState(null)
-  
-  // Mostrar mensaje de cart
+  const [showScrollTop, setShowScrollTop] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
+
   useEffect(() => {
     if (cartMsg) {
       const timer = setTimeout(() => setCartMsg(null), 3000)
       return () => clearTimeout(timer)
     }
   }, [cartMsg])
-  // Cargar productos
+
   useEffect(() => {
     axios.get("http://localhost:3000/api/obtenerproductos")
       .then(res => {
@@ -41,11 +41,11 @@ function BarPlayeroLayout() {
           description: p.Descripcion,
           stock: p.Stock,
           raw: p
-        }));
-        setProducts(lista);
-      });
-  }, []);
-  // Cargar promos
+        }))
+        setProducts(lista)
+      })
+  }, [])
+
   useEffect(() => {
     axios.get("http://localhost:3000/api/obtenerpromos")
       .then(res => {
@@ -54,47 +54,77 @@ function BarPlayeroLayout() {
           image: "data:image/png;base64," + p.Imagen,
           description: p.Descripcion,
           newPrice: "$" + p.Precio,
-        }));
-        setPromotions(lista);
-      });
-  }, []);
+          oldPrice: p.Productos?.length > 0 ? "$" + (p.Productos.reduce((s, pr) => s + pr.Precio, 0)) : null,
+          raw: { ID: p.ID }
+        }))
+        setPromotions(lista)
+      })
+  }, [])
+
   useEffect(() => {
-    if (!user || !user.Id)
+    const uid = getUserId()
+    if (!user || !uid)
       return
-    axios.post('http://localhost:3000/api/obtenercarrito', { ID_Cliente: user.Id })
+    axios.post('http://localhost:3000/api/obtenercarrito', { ID_Cliente: uid })
       .then(res => {
         const serverItems = res.data || []
         clearCart()
         serverItems.forEach(item => {
-          const productFromServer = {
-            title: item.ProductoNombre || `Producto ${item.ID_Producto}`,
-            image: item.ProductoImagen ? `data:image/png;base64,${item.ProductoImagen}` : '',
-            price: "$" + (item.ProductoPrecio ?? "0"),
-            description: item.ProductoDescripcion ?? '',
-            stock: item.Stock ?? 9999,
-            raw: { ID: item.ID_Producto }
-          }
-          // Añadimos una vez y luego seteamos la cantidad real
-          addToCart(productFromServer)
-          // updateQuantity espera el título (coincide con lo que usamos arriba)
-          if (item.Cantidad > 1) {
-            updateQuantity(productFromServer.title, item.Cantidad)
+          const isPromo = item.ID_Promo && item.ID_Promo !== -1
+          if (isPromo) {
+            const promoItem = {
+              title: item.PromoNombre || `Promo #${item.ID_Promo}`,
+              image: item.PromoImagen ? `data:image/png;base64,${item.PromoImagen}` : '',
+              price: "$" + (item.PromoPrecio ?? "0"),
+              description: item.PromoDescripcion ?? '',
+              stock: 9999,
+              isPromo: true,
+              promoID: item.ID_Promo,
+              raw: { ID: item.ID_Promo }
+            }
+            addToCart(promoItem)
+            if (item.Cantidad > 1) {
+              updateQuantity(promoItem.title, item.Cantidad)
+            }
+          } else {
+            const productFromServer = {
+              title: item.ProductoNombre || `Producto ${item.ID_Producto}`,
+              image: item.ProductoImagen ? `data:image/png;base64,${item.ProductoImagen}` : '',
+              price: "$" + (item.ProductoPrecio ?? "0"),
+              description: item.ProductoDescripcion ?? '',
+              stock: item.Stock ?? 9999,
+              raw: { ID: item.ID_Producto }
+            }
+            addToCart(productFromServer)
+            if (item.Cantidad > 1) {
+              updateQuantity(productFromServer.title, item.Cantidad)
+            }
           }
         })
       })
-  }, [user]); // corre cuando user cambie
+  }, [user])
+
+  useEffect(() => {
+    const onScroll = () => setShowScrollTop(window.scrollY > 400)
+    window.addEventListener('scroll', onScroll)
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' })
+
+  const getUserId = () => user?.Id || user?.ID || null
 
   const handleAddToCart = async (product) => {
-    if (!user || !user.Id) {
+    const uid = getUserId()
+    if (!user || !uid) {
       setCartMsg('Debes iniciar sesión para agregar productos al carrito')
       setTimeout(() => setCartMsg(null), 3000)
       setShowLogin(true)
       return
     }
-    
     try {
       await axios.post('http://localhost:3000/api/anadirprodcarrito', {
-        ID_Cliente: user.Id,
+        ID_Cliente: uid,
         ID_Producto: product.raw?.ID ?? product.raw?.id ?? null
       })
       setCartMsg('Producto añadido al carrito')
@@ -107,8 +137,41 @@ function BarPlayeroLayout() {
     }
   }
 
+  const handleAddPromo = async (promo) => {
+    const uid = getUserId()
+    if (!user || !uid) {
+      setCartMsg('Debes iniciar sesión para agregar promociones')
+      setTimeout(() => setCartMsg(null), 3000)
+      setShowLogin(true)
+      return
+    }
+    try {
+      await axios.post('http://localhost:3000/api/anadirpromcarrito', {
+        ID_Cliente: uid,
+        ID_Promo: promo.raw?.ID ?? null
+      })
+      addToCart({
+        title: promo.title,
+        image: promo.image,
+        price: promo.newPrice,
+        description: promo.description,
+        stock: 9999,
+        isPromo: true,
+        promoID: promo.raw?.ID,
+        raw: { ID: promo.raw?.ID }
+      })
+      setCartMsg('Promoción añadida al carrito')
+      setTimeout(() => setCartMsg(null), 2000)
+    } catch (err) {
+      console.error("Error añadiendo promo al carrito:", err)
+      setCartMsg('Error al agregar promoción')
+      setTimeout(() => setCartMsg(null), 2500)
+    }
+  }
+
   const handleReserveTable = () => {
-    if (!user || !user.Id) {
+    const uid = getUserId()
+    if (!user || !uid) {
       setCartMsg('Debes iniciar sesión para reservar una mesa')
       setTimeout(() => setCartMsg(null), 3000)
       setShowLogin(true)
@@ -125,11 +188,16 @@ function BarPlayeroLayout() {
 
       <header className="encabezado">
         <img src={Logo} alt="Cáliz Logo" className="logo-image" />
-        <nav className="menu">
-          <a href="#">Cocteles</a>
-          <a href="#">Cervezas</a>
-          <a href="#">Bebidas</a>
-          <a href="#">Contacto</a>
+        <button className={`hamburger ${menuOpen ? 'open' : ''}`} onClick={() => setMenuOpen(!menuOpen)}>
+          <span></span><span></span><span></span>
+        </button>
+        <nav className={`menu ${menuOpen ? 'menu-open' : ''}`}>
+          <a href="#inicio" onClick={(e) => { e.preventDefault(); document.getElementById('inicio')?.scrollIntoView({ behavior: 'smooth' }); setMenuOpen(false) }}>Inicio</a>
+          <a href="#promos-2x1-section" onClick={(e) => { e.preventDefault(); document.getElementById('promos-2x1-section')?.scrollIntoView({ behavior: 'smooth' }); setMenuOpen(false) }}>Promociones Especiales</a>
+          <a href="#menu-section" onClick={(e) => { e.preventDefault(); document.getElementById('menu-section')?.scrollIntoView({ behavior: 'smooth' }); setMenuOpen(false) }}>Nuestro Menú</a>
+          <a href="#about-section" onClick={(e) => { e.preventDefault(); document.getElementById('about-section')?.scrollIntoView({ behavior: 'smooth' }); setMenuOpen(false) }}>Sobre Nosotros</a>
+          <a href="#ambiente" onClick={(e) => { e.preventDefault(); document.getElementById('ambiente')?.scrollIntoView({ behavior: 'smooth' }); setMenuOpen(false) }}>Ambiente</a>
+          <a href="#contact-section" onClick={(e) => { e.preventDefault(); document.getElementById('contact-section')?.scrollIntoView({ behavior: 'smooth' }); setMenuOpen(false) }}>Contacto</a>
           <button className="reserve-btn" onClick={handleReserveTable}>
             Reservar Mesa
           </button>
@@ -152,7 +220,7 @@ function BarPlayeroLayout() {
         </div>
       </header>
 
-      <section className="intermedio">
+      <section className="intermedio" id="inicio">
         <div className="hero-banner">
           <div className="hero-sub">Taberna Medieval de Autor</div>
           <h2>BIENVENIDOS AL <span>CÁLIZ</span></h2>
@@ -163,35 +231,24 @@ function BarPlayeroLayout() {
             <p>Hidromiel, cervezas artesanales y espirituosos cuidadosamente seleccionados</p>
           </div>
           <div className="hero-buttons">
-            <button 
-              className="hero-menu-btn"
-              onClick={() => {
-                const menuSection = document.getElementById('menu-section');
-                if (menuSection) {
-                  menuSection.scrollIntoView({ behavior: 'smooth' });
-                }
-              }}
-            >
+            <button className="hero-menu-btn" onClick={() => {
+              const menuSection = document.getElementById('menu-section')
+              if (menuSection) menuSection.scrollIntoView({ behavior: 'smooth' })
+            }}>
               Ver Menú
             </button>
-            <button 
-              className="hero-know-more-btn"
-              onClick={() => {
-                const aboutSection = document.getElementById('about-section');
-                if (aboutSection) {
-                  aboutSection.scrollIntoView({ behavior: 'smooth' });
-                }
-              }}
-            >
+            <button className="hero-know-more-btn" onClick={() => {
+              const aboutSection = document.getElementById('about-section')
+              if (aboutSection) aboutSection.scrollIntoView({ behavior: 'smooth' })
+            }}>
               Conocer Más
             </button>
           </div>
         </div>
       </section>
 
-      <PromotionCarousel promotions={promotions} />
+      <PromotionCarousel promotions={promotions} onAddPromo={handleAddPromo} />
 
-      {/* Sección Promos 2x1 */}
       <section className="promos-2x1-section" id="promos-2x1-section">
         <div className="promos-2x1-container">
           <h2 className="promos-2x1-title">PROMOCIONES 2x1</h2>
@@ -203,6 +260,9 @@ function BarPlayeroLayout() {
                   <h3>{promo.title}</h3>
                   <p>{promo.description}</p>
                   <span className="promo-2x1-price">{promo.newPrice}</span>
+                  <button className="promo-2x1-btn" onClick={() => handleAddPromo(promo)}>
+                    Agregar al Carrito
+                  </button>
                 </div>
               </div>
             ))}
@@ -212,22 +272,11 @@ function BarPlayeroLayout() {
 
       <main className="contenido" id="menu-section">
         <h2 className="products-title">NUESTRO MENÚ</h2>
+
         {cartMsg && (
-          <div style={{
-            padding: '15px',
-            margin: '20px auto',
-            maxWidth: '600px',
-            background: '#1a1a1a',
-            border: '2px solid #ffffff',
-            borderRadius: '8px',
-            color: '#ffffff',
-            textAlign: 'center',
-            fontSize: '16px',
-            fontWeight: '600'
-          }}>
-            {cartMsg}
-          </div>
+          <div className="cart-msg">{cartMsg}</div>
         )}
+
         <div className="cards">
           {products.map(product => (
             <DrinkCard
@@ -243,18 +292,17 @@ function BarPlayeroLayout() {
         </div>
       </main>
 
-      {/* Sección Sobre Nosotros */}
       <section className="about-section" id="about-section">
         <div className="about-container">
           <h2 className="about-title">SOBRE EL CÁLIZ</h2>
           <div className="about-content">
             <div className="about-card">
-                <h3>Nuestro Propósito</h3>
-                <p>
-                  En El Cáliz, nuestro propósito es ofrecer experiencias medievales auténticas e inolvidables para nuestros comensales.
-                  Nos enfocamos en hidromiel artesanal, licores de autor y un ambiente de taberna que transporta a otra época.
-                  Buscamos crear momentos memorables combinando tradición, calidad y hospitalidad de antaño.
-                </p>
+              <h3>Nuestro Propósito</h3>
+              <p>
+                En El Cáliz, nuestro propósito es ofrecer experiencias medievales auténticas e inolvidables para nuestros comensales.
+                Nos enfocamos en hidromiel artesanal, licores de autor y un ambiente de taberna que transporta a otra época.
+                Buscamos crear momentos memorables combinando tradición, calidad y hospitalidad de antaño.
+              </p>
             </div>
             <div className="about-card">
               <h3>Nuestra Leyenda</h3>
@@ -262,16 +310,14 @@ function BarPlayeroLayout() {
                 El Cáliz nació con la visión de crear un espacio donde la tradición medieval y la coctelería de autor
                 sean el centro de la experiencia. Inspirados en las antiguas tabernas del viejo continente, combinamos
                 ingredientes ancestrales, recetas olvidadas y un servicio digno de reyes para ofrecer propuestas
-                que sorprenden a cada visitante. Nos esforzamos por superar expectativas y consolidar una experiencia
-                legendaria en el reino.
+                que sorprenden a cada visitante.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Sección Ambiente Único */}
-      <section className="info-section">
+      <section className="info-section" id="ambiente">
         <div className="info-container">
           <h3>AMBIENTE MEDIEVAL</h3>
           <div className="ambience-gallery">
@@ -283,8 +329,7 @@ function BarPlayeroLayout() {
         </div>
       </section>
 
-      {/* Sección Contacto */}
-      <section className="contact-section">
+      <section className="contact-section" id="contact-section">
         <div className="contact-container">
           <h3 className="contact-title">CONTACTO</h3>
           <form className="contact-form">
@@ -310,9 +355,12 @@ function BarPlayeroLayout() {
           </form>
         </div>
       </section>
+
+      <button className={`scroll-to-top ${showScrollTop ? 'visible' : ''}`} onClick={scrollToTop} aria-label="Volver arriba">
+        ↑
+      </button>
     </div>
   )
 }
 
 export default BarPlayeroLayout
-

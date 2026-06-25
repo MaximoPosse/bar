@@ -4,22 +4,23 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(42, 18, 21, 0.85);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  backdrop-filter: blur(4px);
 }
 
 .login-container {
-  background: #1a1a1a;
+  background: var(--caliz-brown);
   padding: 2rem;
   border-radius: 10px;
   width: 90%;
-  max-width: 400px;
+  max-width: 420px;
   position: relative;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
-  border: 2px solid #ffffff;
+  border: 2px solid var(--caliz-bronze);
 }
 
 .login-close {
@@ -30,22 +31,26 @@
   border: none;
   font-size: 2rem;
   cursor: pointer;
-  color: #666;
+  color: var(--caliz-cream);
+  opacity: 0.7;
   line-height: 1;
   padding: 0;
   width: 30px;
   height: 30px;
+  transition: opacity 0.3s;
 }
 
 .login-close:hover {
-  color: #000;
+  opacity: 1;
 }
 
 .login-container h2 {
   margin-top: 0;
   margin-bottom: 1.5rem;
   text-align: center;
-  color: #ffffff;
+  color: var(--caliz-cream);
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }
 
 .login-tabs {
@@ -57,19 +62,22 @@
 .login-tabs button {
   flex: 1;
   padding: 0.5rem;
-  border: 2px solid #ffffff;
-  background: #1a1a1a;
-  color: #ffffff;
+  border: 2px solid var(--caliz-bronze);
+  background: transparent;
+  color: var(--caliz-cream);
   cursor: pointer;
   border-radius: 5px;
   font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 1px;
   transition: all 0.3s;
+  font-family: inherit;
 }
 
 .login-tabs button.active {
-  background: #ffffff;
-  color: #000000;
-  border-color: #ffffff;
+  background: var(--caliz-bronze);
+  color: var(--caliz-cream);
+  border-color: var(--caliz-bronze);
 }
 
 .login-container form {
@@ -80,50 +88,82 @@
 
 .login-container input {
   padding: 0.75rem;
-  border: 2px solid #ffffff;
-  background: #1a1a1a;
-  color: #ffffff;
+  border: 2px solid var(--caliz-bronze);
+  background: var(--caliz-dark);
+  color: var(--caliz-cream);
   border-radius: 5px;
   font-size: 1rem;
+  font-family: Georgia, 'Times New Roman', serif;
 }
 
 .login-container input:focus {
   outline: none;
-  border-color: #ffffff;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.06);
+  border-color: var(--caliz-cream);
+  box-shadow: 0 0 10px rgba(139, 107, 61, 0.2);
+}
+
+.login-container input::placeholder {
+  color: rgba(242, 235, 225, 0.3);
 }
 
 .submit-btn {
   padding: 0.75rem;
-  background: #ffffff;
-  color: #000000;
-  border: none;
+  background: var(--caliz-bronze);
+  color: var(--caliz-cream);
+  border: 2px solid var(--caliz-bronze);
   border-radius: 5px;
   font-size: 1rem;
   cursor: pointer;
   font-weight: bold;
-  transition: background 0.3s;
+  letter-spacing: 1px;
+  transition: all 0.3s;
+  font-family: inherit;
+  text-transform: uppercase;
 }
 
 .submit-btn:hover {
-  background: #000000;
-  color: #ffffff;
+  background: var(--caliz-cream);
+  color: var(--caliz-red);
+  border-color: var(--caliz-cream);
+  box-shadow: 0 0 20px rgba(139, 107, 61, 0.3);
+}
+
+.btn-cancel {
+  padding: 0.75rem;
+  background: transparent;
+  color: var(--caliz-cream);
+  border: 2px solid var(--caliz-cream);
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  font-weight: bold;
+  letter-spacing: 1px;
+  transition: all 0.3s;
+  font-family: inherit;
+  text-transform: uppercase;
+}
+
+.btn-cancel:hover {
+  background: var(--caliz-cream);
+  color: var(--caliz-dark);
 }
 
 .error-message {
-  background: #f8d7da;
-  color: #721c24;
+  background: var(--caliz-red);
+  color: var(--caliz-cream);
   padding: 0.75rem;
   border-radius: 5px;
   font-size: 0.9rem;
+  text-align: center;
 }
 
 .success-message {
-  background: #d4edda;
-  color: #155724;
+  background: var(--caliz-green);
+  color: var(--caliz-cream);
   padding: 0.75rem;
   border-radius: 5px;
   font-size: 0.9rem;
+  text-align: center;
 }
 
 .login-switch {
@@ -135,30 +175,107 @@
   gap: 0.5rem;
 }
 
-.login-switch button {
-  background: none;
-  border: none;
-  color: #4CAF50;
-  cursor: pointer;
-  text-decoration: underline;
+.login-switch span {
+  color: var(--caliz-cream);
+  opacity: 0.8;
   font-size: 0.9rem;
 }
 
+.login-switch button {
+  background: none;
+  border: none;
+  color: var(--caliz-bronze);
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
 .login-switch button:hover {
-  color: #45a049;
+  text-decoration: underline;
 }
 
 .login-info {
   margin-top: 1.5rem;
   padding: 1rem;
-  background: #e3f2fd;
+  background: var(--caliz-dark);
+  border: 1px solid var(--caliz-bronze);
   border-radius: 5px;
   text-align: center;
 }
 
 .login-info p {
   margin: 0.5rem 0;
-  color: #1976d2;
+  color: var(--caliz-cream);
+  opacity: 0.8;
   font-size: 0.9rem;
 }
 
+.face-auth-section {
+  margin-top: 1.5rem;
+  border-top: 1px solid var(--caliz-bronze);
+  padding-top: 1.5rem;
+  text-align: center;
+}
+
+.face-auth-section p {
+  color: var(--caliz-cream);
+  opacity: 0.7;
+  font-size: 0.85rem;
+  margin-bottom: 0.8rem;
+}
+
+.face-login-btn {
+  padding: 0.75rem 1rem;
+  background: transparent;
+  color: var(--caliz-green);
+  border: 2px solid var(--caliz-green);
+  border-radius: 5px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  font-weight: 700;
+  letter-spacing: 1px;
+  transition: all 0.3s;
+  font-family: inherit;
+  text-transform: uppercase;
+  width: 100%;
+}
+
+.face-login-btn:hover {
+  background: var(--caliz-green);
+  color: var(--caliz-dark);
+  box-shadow: 0 0 20px rgba(127, 160, 153, 0.3);
+}
+
+.face-capture-container {
+  margin-top: 1rem;
+}
+
+.face-capture-container video {
+  width: 100%;
+  border-radius: 8px;
+  border: 2px solid var(--caliz-bronze);
+}
+
+.face-capture-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.face-capture-actions button {
+  flex: 1;
+  padding: 0.6rem;
+  border-radius: 5px;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.8rem;
+}
+
+@media (max-width: 480px) {
+  .login-container { padding: 1.5rem; }
+}

@@ -11,7 +11,8 @@ function ProductsSection({ onAction }) {
         Stock: '',
         Descripcion: '',
         Imagen: null,
-        ID_Promo: -1
+        ID_Promo: -1,
+        Categoria: 'Bebidas'
     })
     const [error, setError] = useState('')
     const [success, setSuccess] = useState('')
@@ -35,7 +36,7 @@ function ProductsSection({ onAction }) {
 
     const resetForm = () => {
         setShowForm(false)
-        setFormData({ Nombre: '', Precio: '', Stock: '', Descripcion: '', Imagen: null, ID_Promo: -1 })
+        setFormData({ Nombre: '', Precio: '', Stock: '', Descripcion: '', Imagen: null, ID_Promo: -1, Categoria: 'Bebidas' })
         setEditingProduct(null)
         setImagePreview(null)
         setError('')
@@ -79,6 +80,7 @@ function ProductsSection({ onAction }) {
             fd.append('Stock', formData.Stock)
             fd.append('Descripcion', formData.Descripcion)
             fd.append('ID_Promo', formData.ID_Promo || -1)
+            fd.append('Categoria', formData.Categoria || 'Bebidas')
             if (formData.Imagen) fd.append('Imagen', formData.Imagen)
             if (editingProduct) {
                 fd.append('ID', editingProduct.ID)
@@ -109,7 +111,8 @@ function ProductsSection({ onAction }) {
             Stock: product.Stock,
             Descripcion: product.Descripcion,
             Imagen: null,
-            ID_Promo: product.ID_Promo || -1
+            ID_Promo: product.ID_Promo || -1,
+            Categoria: product.Categoria || 'Bebidas'
         })
         setImagePreview(product.Imagen)
         setError('')
@@ -157,6 +160,16 @@ function ProductsSection({ onAction }) {
                             <input type="number" name="Stock" value={formData.Stock} onChange={handleChange} required />
                         </div>
                         <div className="form-group">
+                            <label>Categoría:</label>
+                            <select name="Categoria" value={formData.Categoria} onChange={handleChange} style={{ width: '100%', padding: '8px 12px', background: '#1a1a2e', border: '2px solid #c9a84c', color: '#f0e6d3', borderRadius: 5, fontFamily: 'inherit' }}>
+                                <option value="Bebidas">Bebidas</option>
+                                <option value="Cocteles">Cocteles</option>
+                                <option value="Cervezas">Cervezas</option>
+                                <option value="Vinos">Vinos</option>
+                                <option value="Spirits">Spirits</option>
+                            </select>
+                        </div>
+                        <div className="form-group">
                             <label>Descripción:</label>
                             <textarea name="Descripcion" value={formData.Descripcion} onChange={handleChange} required rows="4" />
                         </div>
@@ -186,6 +199,7 @@ function ProductsSection({ onAction }) {
                             <th>ID</th>
                             <th>Imagen</th>
                             <th>Nombre</th>
+                            <th>Categoría</th>
                             <th>Precio</th>
                             <th>Stock</th>
                             <th>Descripción</th>
@@ -200,6 +214,7 @@ function ProductsSection({ onAction }) {
                                     {product.Imagen ? <img src={product.Imagen} alt={product.Nombre} className="product-thumb" /> : <div style={{ width: 60, height: 60, background: '#222', borderRadius: 8 }} />}
                                 </td>
                                 <td>{product.Nombre}</td>
+                                <td>{product.Categoria || 'Bebidas'}</td>
                                 <td>${product.Precio}</td>
                                 <td>{product.Stock}</td>
                                 <td className="description-cell">{product.Descripcion}</td>
