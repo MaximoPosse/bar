@@ -8,7 +8,7 @@ import ReservationForm from './Reservation/ReservationForm'
 import { useCart } from '../Context/CartContext'
 import { useAuth } from '../Context/AuthContext'
 import { Link } from 'react-router-dom'
-import Logo from '../assets/logo.svg'
+import Logo from '../assets/logo.png'
 import axios from "axios"
 import { useState, useEffect } from 'react'
 
