@@ -601,7 +601,7 @@
   transform: translateY(-2px);
 }
 
-/* ============ MENU / PRODUCTOS ============ */
+/* Menu / Productos */
 .contenido {
   width: 100%;
   max-width: 1200px;
@@ -754,7 +754,7 @@
   transform: translateY(-2px) scale(1.02);
 }
 
-/* ============ INFO / GALERIA ============ */
+/* Info / Gleria*/
 .info-section {
   background: var(--caliz-brown);
   padding: 60px 0;
@@ -779,6 +779,7 @@
   text-transform: uppercase;
 }
 
+/*mierdilla uno*/
 .info-container h3::after {
   content: '━━━ ✦ ━━━';
   display: block;
@@ -810,7 +811,7 @@
   box-shadow: 0 12px 40px rgba(0,0,0,0.5), 0 0 30px rgba(139,107,61,0.2);
 }
 
-/* ============ CONTACTO ============ */
+/* Contacto */
 .contact-section {
   background: var(--caliz-dark);
   padding: 60px 0;
@@ -918,7 +919,7 @@
   transform: translateY(-2px);
 }
 
-/* ============ FOOTER ============ */
+/* Footer */
 footer {
   margin-top: auto;
   width: 100%;
@@ -938,7 +939,7 @@ footer p {
   font-family: 'Georgia', serif;
 }
 
-/* ============ RESPONSIVE ============ */
+/* Rsponsive */
 
 @media (max-width: 1024px) {
   .hero-banner h2 { font-size: 42px; letter-spacing: 4px; }
