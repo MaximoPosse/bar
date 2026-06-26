@@ -395,7 +395,7 @@
   font-weight: 600;
 }
 
-/* ============ ABOUT SECTION ============ */
+/* seccion sobre nosotros */
 .about-section {
   background: var(--caliz-dark);
   padding: 70px 0;
@@ -475,7 +475,7 @@
   font-family: 'Georgia', serif;
 }
 
-/* ============ PROMOS 2x1 ============ */
+/* PROMOS 2x1 */
 .promos-2x1-section {
   background: var(--caliz-brown);
   padding: 60px 0;
