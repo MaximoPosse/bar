@@ -21,7 +21,7 @@ function PromosSection({ onAction }) {
 
     const loadPromos = async () => {
         try {
-            const resp = await axios.get('http://localhost:3000/api/obtenerpromos')
+            const resp = await axios.get('https://bar-caliz-backend.onrender.com/api/obtenerpromos')
             const lista = resp.data.map(promo => ({
                 ...promo,
                 Imagen: promo.Imagen ? "data:image/png;base64," + promo.Imagen : null,
@@ -35,7 +35,7 @@ function PromosSection({ onAction }) {
 
     const loadAllProducts = async () => {
         try {
-            const resp = await axios.get('http://localhost:3000/api/obtenerproductos')
+            const resp = await axios.get('https://bar-caliz-backend.onrender.com/api/obtenerproductos')
             const productos = resp.data.map(p => ({
                 ID: p.ID,
                 Nombre: p.Nombre,
@@ -118,14 +118,14 @@ function PromosSection({ onAction }) {
                 const prodIDs = editingProducts.map(p => p.ID)
                 fd.append('Productos', JSON.stringify(prodIDs))
 
-                await axios.post('http://localhost:3000/api/modificarpromo', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+                await axios.post('https://bar-caliz-backend.onrender.com/api/modificarpromo', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
                 setSuccess('Promo modificada exitosamente')
             } else {
                 // Nueva promo: también permitimos enviar Productos (si los hubieras agregado antes de crear)
                 const prodIDs = editingProducts.map(p => p.ID)
                 if (prodIDs.length) fd.append('Productos', JSON.stringify(prodIDs))
 
-                await axios.post('http://localhost:3000/api/anadirpromo', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+                await axios.post('https://bar-caliz-backend.onrender.com/api/anadirpromo', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
                 setSuccess('Promo añadida exitosamente')
                 setShowForm(false)
             }
@@ -156,7 +156,7 @@ function PromosSection({ onAction }) {
     const handleDelete = async (id) => {
         if (!window.confirm('¿Estás seguro de eliminar esta promo?')) return
         try {
-            await axios.post('http://localhost:3000/api/eliminarpromo', { ID: id })
+            await axios.post('https://bar-caliz-backend.onrender.com/api/eliminarpromo', { ID: id })
             setSuccess('Promo eliminada exitosamente')
             loadPromos()
             loadAllProducts()

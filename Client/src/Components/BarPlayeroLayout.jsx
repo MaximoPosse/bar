@@ -31,7 +31,7 @@ function BarPlayeroLayout() {
   }, [cartMsg])
 
   useEffect(() => {
-    axios.get("http://localhost:3000/api/obtenerproductos")
+    axios.get("https://bar-caliz-backend.onrender.com/api/obtenerproductos")
       .then(res => {
         const lista = res.data.map(p => ({
           id: p.Id,
@@ -47,7 +47,7 @@ function BarPlayeroLayout() {
   }, [])
 
   useEffect(() => {
-    axios.get("http://localhost:3000/api/obtenerpromos")
+    axios.get("https://bar-caliz-backend.onrender.com/api/obtenerpromos")
       .then(res => {
         const lista = res.data.map(p => ({
           title: p.Nombre,
@@ -65,7 +65,7 @@ function BarPlayeroLayout() {
     const uid = getUserId()
     if (!user || !uid)
       return
-    axios.post('http://localhost:3000/api/obtenercarrito', { ID_Cliente: uid })
+    axios.post('https://bar-caliz-backend.onrender.com/obtenercarrito', { ID_Cliente: uid })
       .then(res => {
         const serverItems = res.data || []
         clearCart()
@@ -123,7 +123,7 @@ function BarPlayeroLayout() {
       return
     }
     try {
-      await axios.post('http://localhost:3000/api/anadirprodcarrito', {
+      await axios.post('https://bar-caliz-backend.onrender.com/api/anadirprodcarrito', {
         ID_Cliente: uid,
         ID_Producto: product.raw?.ID ?? product.raw?.id ?? null
       })
@@ -146,7 +146,7 @@ function BarPlayeroLayout() {
       return
     }
     try {
-      await axios.post('http://localhost:3000/api/anadirpromcarrito', {
+      await axios.post('https://bar-caliz-backend.onrender.com/api/anadirpromcarrito', {
         ID_Cliente: uid,
         ID_Promo: promo.raw?.ID ?? null
       })

@@ -18,7 +18,7 @@ function AdminPanel() {
 
   const loadAdmins = async () => {
     try {
-      const res = await axios.get('http://localhost:3000/api/obteneradmins')
+      const res = await axios.get('https://bar-caliz-backend.onrender.com/api/obteneradmins')
       setAdmins(res.data || [])
     } catch {
       setAdminMsg({ type: 'error', text: 'Error al cargar administradores' })
@@ -41,7 +41,7 @@ function AdminPanel() {
       return
     }
     try {
-      await axios.post('http://localhost:3000/api/registrarseadmin', {
+      await axios.post('https://bar-caliz-backend.onrender.com/api/registrarseadmin', {
         Nombre: newAdmin.Nombre, Correo: newAdmin.Correo, Contraseña: newAdmin.Contraseña
       })
       setAdminMsg({ type: 'success', text: `Admin "${newAdmin.Nombre}" registrado exitosamente` })
@@ -55,7 +55,7 @@ function AdminPanel() {
   const handleDeleteAdmin = async (admin) => {
     if (!window.confirm(`¿Eliminar al administrador "${admin.Nombre}"?`)) return
     try {
-      await axios.post('http://localhost:3000/api/eliminaradmin', {
+      await axios.post('https://bar-caliz-backend.onrender.com/api/eliminaradmin', {
         ID: admin.ID, ID_Usuario: user?.ID
       })
       setAdminMsg({ type: 'success', text: `Admin "${admin.Nombre}" eliminado` })

@@ -19,7 +19,7 @@ function Cart({ onShowLogin }) {
   const apiCall = async (endpoint, data) => {
     const uid = getUserId()
     if (!uid) throw new Error('No user')
-    return axios.post(`http://localhost:3000/api/${endpoint}`, { ...data, ID_Cliente: uid })
+    return axios.post(`https://bar-caliz-backend.onrender.com/api/${endpoint}`, { ...data, ID_Cliente: uid })
   }
 
   const handleIncrease = async (item) => {

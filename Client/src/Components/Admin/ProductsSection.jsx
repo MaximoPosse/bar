@@ -25,7 +25,7 @@ function ProductsSection({ onAction }) {
 
     const loadProducts = async () => {
         try {
-            const resp = await axios.get('http://localhost:3000/api/obtenerproductos')
+            const resp = await axios.get('https://bar-caliz-backend.onrender.com/api/obtenerproductos')
             const lista = resp.data.map(p => ({ ...p, Imagen: p.Imagen ? 'data:image/png;base64,' + p.Imagen : null }))
             setProducts(lista)
         } catch (err) {
@@ -84,10 +84,10 @@ function ProductsSection({ onAction }) {
             if (formData.Imagen) fd.append('Imagen', formData.Imagen)
             if (editingProduct) {
                 fd.append('ID', editingProduct.ID)
-                await axios.post('http://localhost:3000/api/modificarproducto', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+                await axios.post('https://bar-caliz-backend.onrender.com/api/modificarproducto', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
                 setSuccess('Producto modificado exitosamente')
             } else {
-                await axios.post('http://localhost:3000/api/anadirproducto', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+                await axios.post('https://bar-caliz-backend.onrender.com/api/anadirproducto', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
                 setSuccess('Producto añadido exitosamente')
             }
 
@@ -121,7 +121,7 @@ function ProductsSection({ onAction }) {
     const handleDelete = async (id) => {
         if (!window.confirm('¿Estás seguro de eliminar este producto?')) return
         try {
-            await axios.post('http://localhost:3000/api/eliminarproducto', { ID: id })
+            await axios.post('https://bar-caliz-backend.onrender.com/api/eliminarproducto', { ID: id })
             setSuccess('Producto eliminado exitosamente')
             loadProducts()
             if (onAction) onAction()
