@@ -11,6 +11,7 @@ function AdminPanel() {
   const [showAdminsSection, setShowAdminsSection] = useState(false)
   const [showProducts, setShowProducts] = useState(true)
   const [showPromos, setShowPromos] = useState(false)
+  const [showPedidos, setShowPedidos] = useState(false);
   const [admins, setAdmins] = useState([])
   const [adminMsg, setAdminMsg] = useState(null)
   const [newAdmin, setNewAdmin] = useState({ Nombre: '', Correo: '', Contraseña: '' })
