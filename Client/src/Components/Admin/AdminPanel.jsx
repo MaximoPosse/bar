@@ -4,6 +4,7 @@ import { useAuth } from '../../Context/AuthContext'
 import './AdminPanel.css'
 import ProductsSection from './ProductsSection'
 import PromosSection from './PromosSection'
+import PedidosSection from './PedidosSection'
 
 function AdminPanel() {
   const { user, isSuperAdmin } = useAuth()
@@ -81,6 +82,9 @@ function AdminPanel() {
           <button className={`btn-toggle ${showPromos ? 'active' : ''}`} onClick={() => { setShowPromos(true); setShowProducts(false) }}>
             Promos
           </button>
+          <button className={`btn-toggle ${showPedidos ? 'active' : ''}`} onClick={() => { setShowPedidos(true); setShowPromos(false); setShowProducts(false); setShowMesas(false) }}>
+            Pedidos
+          </button>
         </div>
       </div>
 
@@ -151,6 +155,9 @@ function AdminPanel() {
 
       {showProducts && <ProductsSection onAction={onSectionAction} />}
       {showPromos && <PromosSection onAction={onSectionAction} />}
+      {showPedidos && (
+        <PedidosSection onAction={onSectionAction} />
+      )}
     </div>
   )
 }

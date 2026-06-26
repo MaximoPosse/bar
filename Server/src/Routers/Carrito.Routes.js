@@ -1,10 +1,3 @@
-/**
- * Rutas del Carrito de Compras
- * 
- * Endpoints para gestionar el carrito de compras de los clientes,
- * permitiendo agregar/eliminar productos y promociones.
- */
-
 const Express = require("express");
 const Rutas = Express.Router();
 
@@ -14,14 +7,24 @@ const {
     EliminarProdCarrito,
     VaciarCarrito,
     AñadirPromCarrito,
-    EliminarPromCarrito
+    EliminarPromCarrito,
+    RealizarPedido,
+    CancelarPedido,
+    ObtenerPedidos,
+    ProcesarPedido,
+    ActualizarCarrito
 } = require("../Controller/Carrito.Controller");
 
-Rutas.post("/obtenercarrito", ObtenerCarrito);              // Obtener contenido del carrito
-Rutas.post("/anadirprodcarrito", AñadirProdCarrito);        // Agregar producto al carrito
-Rutas.post("/eliminarprodcarrito", EliminarProdCarrito);    // Eliminar/quitar cantidad de producto
-Rutas.post("/anadirpromcarrito", AñadirPromCarrito);        // Agregar promo al carrito
-Rutas.post("/eliminarpromcarrito", EliminarPromCarrito);    // Eliminar/quitar cantidad de promo
-Rutas.post("/vaciarcarrito", VaciarCarrito);                // Vaciar carrito completo
+Rutas.post("/obtenercarrito", ObtenerCarrito);
+Rutas.post("/anadirprodcarrito", AñadirProdCarrito);
+Rutas.post("/eliminarprodcarrito", EliminarProdCarrito);
+Rutas.post("/vaciarcarrito", VaciarCarrito);
+Rutas.post("/anadirpromcarrito", AñadirPromCarrito);
+Rutas.post("/eliminarpromcarrito", EliminarPromCarrito);
+Rutas.post("/realizarpedido", RealizarPedido);
+Rutas.post("/cancelarpedido", CancelarPedido);
+Rutas.get("/obtenerpedidos", ObtenerPedidos);
+Rutas.post("/procesarpedido", ProcesarPedido);
+Rutas.post("/actualizarcarrito", ActualizarCarrito);
 
 module.exports = Rutas;

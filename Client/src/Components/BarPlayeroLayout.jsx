@@ -62,32 +62,17 @@ function BarPlayeroLayout() {
   }, [])
 
   useEffect(() => {
-    const uid = getUserId()
-    if (!user || !uid)
+    if (!user || !user.Id)
       return
-    axios.post('https://bar-caliz-backend.onrender.com/obtenercarrito', { ID_Cliente: uid })
+    axios.post('https://bar-caliz-backend.onrender.com/api/obtenercarrito', { ID_Cliente: user.Id })
       .then(res => {
         const serverItems = res.data || []
         clearCart()
+        console.log(serverItems)
         serverItems.forEach(item => {
-          const isPromo = item.ID_Promo && item.ID_Promo !== -1
-          if (isPromo) {
-            const promoItem = {
-              title: item.PromoNombre || `Promo #${item.ID_Promo}`,
-              image: item.PromoImagen ? `data:image/png;base64,${item.PromoImagen}` : '',
-              price: "$" + (item.PromoPrecio ?? "0"),
-              description: item.PromoDescripcion ?? '',
-              stock: 9999,
-              isPromo: true,
-              promoID: item.ID_Promo,
-              raw: { ID: item.ID_Promo }
-            }
-            addToCart(promoItem)
-            if (item.Cantidad > 1) {
-              updateQuantity(promoItem.title, item.Cantidad)
-            }
-          } else {
-            const productFromServer = {
+          let productFromServer = {}
+          if (item.ProductoNombre) {
+            productFromServer = {
               title: item.ProductoNombre || `Producto ${item.ID_Producto}`,
               image: item.ProductoImagen ? `data:image/png;base64,${item.ProductoImagen}` : '',
               price: "$" + (item.ProductoPrecio ?? "0"),
@@ -95,14 +80,28 @@ function BarPlayeroLayout() {
               stock: item.Stock ?? 9999,
               raw: { ID: item.ID_Producto }
             }
-            addToCart(productFromServer)
-            if (item.Cantidad > 1) {
-              updateQuantity(productFromServer.title, item.Cantidad)
+          }
+          else
+          {
+            productFromServer = {
+              title: item.PromoNombre,
+              image: item.PromoImagen ? `data:image/png;base64,${item.PromoImagen}` : '',
+              price: "$" + (item.PromoPrecio ?? "0"),
+              description: item.PromoDescripcion ?? '',
+              stock: item.Stock ?? 9999,
+              raw: { ID: item.ID_Promo }
             }
+          }
+          console.log(productFromServer)
+          // Añadimos una vez y luego seteamos la cantidad real
+          addToCart(productFromServer)
+          // updateQuantity espera el título (coincide con lo que usamos arriba)
+          if (item.Cantidad > 1) {
+            updateQuantity(productFromServer.title, item.Cantidad)
           }
         })
       })
-  }, [user])
+  }, [user]); // corre cuando user cambie
 
   useEffect(() => {
     const onScroll = () => setShowScrollTop(window.scrollY > 400)
@@ -115,16 +114,16 @@ function BarPlayeroLayout() {
   const getUserId = () => user?.Id || user?.ID || null
 
   const handleAddToCart = async (product) => {
-    const uid = getUserId()
-    if (!user || !uid) {
+    if (!user || !user.Id) {
       setCartMsg('Debes iniciar sesión para agregar productos al carrito')
       setTimeout(() => setCartMsg(null), 3000)
       setShowLogin(true)
       return
     }
+
     try {
       await axios.post('https://bar-caliz-backend.onrender.com/api/anadirprodcarrito', {
-        ID_Cliente: uid,
+        ID_Cliente: user.Id,
         ID_Producto: product.raw?.ID ?? product.raw?.id ?? null
       })
       setCartMsg('Producto añadido al carrito')
@@ -170,8 +169,7 @@ function BarPlayeroLayout() {
   }
 
   const handleReserveTable = () => {
-    const uid = getUserId()
-    if (!user || !uid) {
+    if (!user || !user.Id) {
       setCartMsg('Debes iniciar sesión para reservar una mesa')
       setTimeout(() => setCartMsg(null), 3000)
       setShowLogin(true)
