@@ -77,13 +77,13 @@ function AdminPanel() {
               {showAdminsSection ? 'Ocultar' : 'Gestionar'} Admins
             </button>
           )}
-          <button className={`btn-toggle ${showProducts ? 'active' : ''}`} onClick={() => { setShowProducts(true); setShowPromos(false) }}>
+          <button className={`btn-toggle ${showProducts ? 'active' : ''}`} onClick={() => { setShowProducts(true); setShowPromos(false); setShowPedidos(true); }}>
             Productos
           </button>
-          <button className={`btn-toggle ${showPromos ? 'active' : ''}`} onClick={() => { setShowPromos(true); setShowProducts(false) }}>
+          <button className={`btn-toggle ${showPromos ? 'active' : ''}`} onClick={() => { setShowPromos(true); setShowProducts(false); setShowPedidos(true); }}>
             Promos
           </button>
-          <button className={`btn-toggle ${showPedidos ? 'active' : ''}`} onClick={() => { setShowPedidos(true); setShowPromos(false); setShowProducts(false); setShowMesas(false) }}>
+          <button className={`btn-toggle ${showPedidos ? 'active' : ''}`} onClick={() => { setShowPedidos(true); setShowPromos(false); setShowProducts(false);}}>
             Pedidos
           </button>
         </div>
