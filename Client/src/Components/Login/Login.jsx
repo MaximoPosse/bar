@@ -87,7 +87,7 @@ function Login({ onClose }) {
       }
       try {
         const endpoint = isAdminLogin
-          ? 'https://bar-caliz-backend.onrender.com/loginadmin'
+          ? 'https://bar-caliz-backend.onrender.com/api/loginadmin'
           : 'https://bar-caliz-backend.onrender.com/api/login'
         const response = await axios.post(endpoint, {
           Nombre: formData.Nombre, Contraseña: formData.Contraseña
