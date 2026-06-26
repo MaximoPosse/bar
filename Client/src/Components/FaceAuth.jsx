@@ -169,7 +169,7 @@ function FaceAuth({ mode, userName, onSuccess, onClose }) {
         setStatus(`Rostro verificado. ¡Bienvenido ${bestMatch.Nombre}! (similitud: ${(bestScore * 100).toFixed(1)}%)`)
         if (onSuccess) {
           try {
-            const res = await axios.post('http://localhost:3000/api/login', {
+            const res = await axios.post('https://bar-caliz-backend.onrender.com/api/login', {
               Nombre: bestMatch.Nombre,
               Contraseña: 'face_auth_bypass'
             })

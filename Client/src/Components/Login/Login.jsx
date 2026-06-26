@@ -62,7 +62,7 @@ function Login({ onClose }) {
         return
       }
       try {
-        await axios.post('http://localhost:3000/api/registrarse', {
+        await axios.post('https://bar-caliz-backend.onrender.com/api/registrarse', {
           Nombre: formData.Nombre, Correo: formData.Correo, Contraseña: formData.Contraseña
         })
         // Actualizar nombre en rostro guardado localmente con 'Usuario' genérico
@@ -87,8 +87,8 @@ function Login({ onClose }) {
       }
       try {
         const endpoint = isAdminLogin
-          ? 'http://localhost:3000/api/loginadmin'
-          : 'http://localhost:3000/api/login'
+          ? 'https://bar-caliz-backend.onrender.com/loginadmin'
+          : 'https://bar-caliz-backend.onrender.com/api/login'
         const response = await axios.post(endpoint, {
           Nombre: formData.Nombre, Contraseña: formData.Contraseña
         })
@@ -126,14 +126,14 @@ function Login({ onClose }) {
     setShowCodeOnScreen(false)
     if (!forgotNombre) { setForgotError('Ingresa tu nombre de usuario'); return }
     try {
-      const res = await axios.get(`http://localhost:3000/api/obteneremailcliente/${encodeURIComponent(forgotNombre)}`)
+      const res = await axios.get(`https://bar-caliz-backend.onrender.com/api/obteneremailcliente/${encodeURIComponent(forgotNombre)}`)
       setForgotEmail(res.data.Correo)
       const code = generarCodigo6()
       const expires = Date.now() + 10 * 60 * 1000
       const asunto = 'Código de recuperación - Cáliz Taberna'
       const cuerpo = `Hola ${forgotNombre}.\n\nTu código de recuperación es: ${code}\n\nEste código expirará en 10 minutos.`
       try {
-        await axios.post('http://localhost:3000/api/enviarcorreo', {
+        await axios.post('https://bar-caliz-backend.onrender.com/api/enviarcorreo', {
           Destinatario: res.data.Correo, Asunto: asunto, Cuerpo: cuerpo
         })
         setForgotMsg('Código enviado a tu correo registrado.')
@@ -171,13 +171,13 @@ function Login({ onClose }) {
     if (!newPassword || newPassword.length < 6) { setForgotError('La contraseña debe tener al menos 6 caracteres'); return }
     if (newPassword !== confirmPassword) { setForgotError('Las contraseñas no coinciden'); return }
     try {
-      await axios.post('http://localhost:3000/api/cambiarcontraseña', {
+      await axios.post('https://bar-caliz-backend.onrender.com/api/cambiarcontraseña', {
         Nombre: forgotNombre, NuevaContraseña: newPassword
       })
       setForgotMsg('Contraseña cambiada correctamente. Iniciando sesión...')
       setTimeout(async () => {
         try {
-          const res = await axios.post('http://localhost:3000/api/login', {
+          const res = await axios.post('https://bar-caliz-backend.onrender.com/api/login', {
             Nombre: forgotNombre, Contraseña: newPassword
           })
           login(res.data.Cliente, false)

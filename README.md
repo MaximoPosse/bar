@@ -81,7 +81,7 @@ npm run server     # Con nodemon (reinicio automático)
 npm start          # Con node
 ```
 
-El servidor correrá en `http://localhost:3000`
+El servidor correrá en `https://bar-caliz-backend.onrender.com/`
 
 ### Iniciar el cliente (Frontend)
 
@@ -92,7 +92,7 @@ cd Client
 npm run dev
 ```
 
-El cliente correrá en `http://localhost:5173`
+El cliente correrá en `https://barcalizfrontend.vercel.app`
 
 ---
 
