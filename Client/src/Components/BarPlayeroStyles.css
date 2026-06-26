@@ -198,7 +198,7 @@
   transform: rotate(-45deg) translate(6px, -6px);
 }
 
-/* ============ HERO ============ */
+/* Hero */
 .hero-banner {
   width: 100%;
   min-height: 85vh;
@@ -347,7 +347,7 @@
   transform: translateY(-3px);
 }
 
-/* ============ CATEGORY FILTERS ============ */
+/* filtros de categoria */
 .category-filters {
   display: flex;
   flex-wrap: wrap;
@@ -381,7 +381,7 @@
   box-shadow: 0 0 20px rgba(139,107,61,0.3);
 }
 
-/* ============ CART MESSAGE ============ */
+/* mensaje carrito */
 .cart-msg {
   padding: 15px;
   margin: 20px auto;
