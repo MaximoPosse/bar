@@ -17,7 +17,6 @@
   z-index: 0;
 }
 
-/* ============ HEADER ============ */
 .encabezado {
   height: 110px;
   display: flex;
@@ -167,7 +166,6 @@
   transform: translateY(-2px);
 }
 
-/* Hamburger */
 .hamburger {
   display: none;
   flex-direction: column;
@@ -200,7 +198,7 @@
   transform: rotate(-45deg) translate(6px, -6px);
 }
 
-/* ============ HERO ============ */
+/* Hero */
 .hero-banner {
   width: 100%;
   min-height: 85vh;
@@ -349,7 +347,7 @@
   transform: translateY(-3px);
 }
 
-/* ============ CATEGORY FILTERS ============ */
+/* filtros de categoria */
 .category-filters {
   display: flex;
   flex-wrap: wrap;
@@ -383,7 +381,7 @@
   box-shadow: 0 0 20px rgba(139,107,61,0.3);
 }
 
-/* ============ CART MESSAGE ============ */
+/* mensaje carrito */
 .cart-msg {
   padding: 15px;
   margin: 20px auto;
@@ -397,7 +395,7 @@
   font-weight: 600;
 }
 
-/* ============ ABOUT SECTION ============ */
+/* seccion sobre nosotros */
 .about-section {
   background: var(--caliz-dark);
   padding: 70px 0;
@@ -477,7 +475,7 @@
   font-family: 'Georgia', serif;
 }
 
-/* ============ PROMOS 2x1 ============ */
+/* PROMOS 2x1 */
 .promos-2x1-section {
   background: var(--caliz-brown);
   padding: 60px 0;
